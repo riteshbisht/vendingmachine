@@ -1,0 +1,35 @@
+
+{% extends 'base.html' %}
+
+{% block style_block %}
+<style>
+.machine_btn {
+	height: 100px;
+	width: 100px;
+	margin: 0px 20px;
+	word-break: break-all;
+}
+.machine_btn:hover {
+	background: #defea1;
+}
+</style>
+{% endblock %}
+{% block content %}
+<main>
+	<h1 class="text-center"> Vending Machine</h1>
+
+		<section>
+			<div class="col-md-6">
+					<h3>Select Vending Machine</h3>
+			</div>
+			<div class="col-md-6">
+				{% for machine in machines %}
+					<a href="{%url 'machine-detail' machine.machine_code %} "><button class="machine_btn">{{machine.machine_name}}</button></a>
+				{% endfor %}
+			</div>
+		</section>
+</main>
+{% endblock %}
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js">
+</body>
+</html>

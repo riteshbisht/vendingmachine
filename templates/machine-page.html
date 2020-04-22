@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block style_block %}
+<style>
+.item_btn {
+ background: white;
+ border: 1px solid black;
+
+}
+.item_row:hover{
+	background: #ded7d7;
+	cursor: pointer
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="text-center"> {{machine.machine_name}}</h1>
+<main>
+		<section>
+			<div class="col-md-12">
+				<h3> Select Item To Buy</h3>
+			</div>
+			{% if inventories%}
+			<div class="col-md-12">
+								<input type="text" placeholder="Enter Mobile Number" name="mobile"></input>
+
+				<div>
+				   <button class="btn btn-primary" id="buy">Buy</button>
+				</div>
+				<table class="table table-stripped">
+					<thead>
+					    <th>Item</th>
+					    <th>Available Count</th>
+					</thead>
+					<tbody>
+						
+							{% for inventory in inventories %}
+								<tr class="item_row" data-item-code="{{inventory.item.item_code}} ">
+									<td> {{ inventory.item.item_name}} </td>
+									<td> {{ inventory.curr_count }} </td>
+								</tr>
+							{% endfor %}
+					</tbody>
+
+				</table>
+			</div>
+			{% else %}
+					<div class="text-center"> No Items Present</div>
+			{% endif%}
+		</section>
+</main>
+{% endblock %}
+
+{% block js_block %}
+{{block.super}}
+
+<script>
+	let machine_code = "{{machine.machine_code}}"
+	let selected_item_code = undefined;
+$(document).ready(function(){
+    $('.item_row').click(function(){
+    	$('.item_row').not(this).css('background','white')
+    	$(this).css('background','#c0cfd4')
+    	selected_item_code = $(this).attr('data-item-code')
+    })
+    $("#buy").click(function(){
+    	mobile = $('input[name="mobile"]').val()
+    	if(!selected_item_code ){
+    		alert('please select item')
+    		return
+    	}
+    	if(!mobile){
+    		alert('please enter mobile number')
+    		return
+    	}
+
+		url = '/api/' + machine_code + '/buy/'
+	    data = {
+		    'machine_code': machine_code,
+		    'item_code': selected_item_code,
+		    'mobile': mobile
+	    }
+	    fetch(url,{
+	    	method: 'post',
+		    headers: {
+		      "Content-type": "application/json; charset=UTF-8"
+		    },
+		    body: JSON.stringify(data)
+		}).then(function(response){
+	    	if (response.status !== 201) {
+		        if(response.status == 400) {
+		        	response.json().then(function(data){
+		        		alert(data)
+		        	})
+		        }
+		        else{
+		        	alert('Some error Occured')
+		        }
+		        return;
+		     }
+
+		    response.json().then(function(data) {
+		        alert('Item has been purchased')
+		        window.location.reload()
+		     });
+	    })
+    })	
+});
+</script>
+{% endblock %}

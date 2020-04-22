@@ -1,0 +1,49 @@
+<html>
+<head>
+	<title>
+Vending Machine
+</title>
+{% block style_block %}
+
+{% endblock %}
+</head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+<body>
+	{% block header %}
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">Vending Machine</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarText">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/machine/refill/">Refill</a>
+      </li>
+    </ul>
+    {% if request.user.is_authenticated %}
+    <span class="navbar-text">
+      <a href="/logout">Logout</a>
+    </span>
+    {% endif %}
+  </div>
+</nav>
+
+	{% endblock %}
+
+
+{% block content %}
+
+{% endblock %}
+
+</body>
+{% block js_block %}
+<script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+{% endblock %}
+</html>

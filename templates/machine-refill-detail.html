@@ -1,0 +1,217 @@
+
+
+{% extends 'base.html' %}
+
+{% block style_block %}
+
+<style>
+.item_btn {
+ background: white;
+ border: 1px solid black;
+
+}
+.item_row:hover{
+	background: #ded7d7;
+	cursor: pointer
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<h1 class="text-center"> {{machine.machine_name}}</h1>
+<main>
+		<section>
+
+			<div class="col-md-12">
+				<h3> Add Item/Update Item</h3>
+			</div>
+			{% if inventories%}
+			<div class="col-md-12">
+					{% csrf_token %}
+
+					<input type="text" class="form-control" placeholder="Enter value" name="amount_to_add"></input>
+
+				<div>
+				   <button class="btn btn-primary" id="update">Update</button>
+				</div>
+				<table class="table table-stripped">
+					<thead>
+					    <th>Item</th>
+					    <th>Available Count</th>
+					</thead>
+					<tbody>
+						
+							{% for inventory in inventories %}
+								<tr class="item_row" data-item-code="{{inventory.item.item_code}} ">
+									<td> {{ inventory.item.item_name}} </td>
+									<td> {{ inventory.curr_count }} </td>
+								</tr>
+							{% endfor %}
+					</tbody>
+
+				</table>
+			</div>
+			{% else %}
+					<div class="text-center"> No Items Present</div>
+			{% endif%}
+		</section>
+
+		<section>
+			<div class="col-md-12">
+			{% if items and machine.can_add_more_items %}
+			<h4>Add items</h4>
+			<form id="add_item">
+
+				<select class="form-control" name="item_add">
+					{%for item in items %}
+					    <option value="{{item.item_code}}"> {{item.item_name}} </option>
+					{% endfor %}
+				</select>
+				<input class="form-control" type="text" value="0" name="amount_to_add1"/>
+				<button type="submit" class="btn btn-primary"> Add</button>
+			</form>
+		</div>
+			{% endif %}
+		</section>
+</main>
+
+{% endblock %}
+
+{% block js_block %}
+{{block.super}}
+<script>
+	let machine_code = "{{machine.machine_code}}"
+	let selected_item_code = undefined;
+$(document).ready(function(){
+    $('.item_row').click(function(){
+    	$('.item_row').not(this).css('background','white')
+    	$(this).css('background','#c0cfd4')
+    	selected_item_code = $(this).attr('data-item-code')
+    });
+
+    $("#update").click(function(){
+    	amount_to_add = $('input[name="amount_to_add"]').val()
+    	if(!selected_item_code ){
+    		alert('please select item')
+    		return
+    	}
+    	if(!amount_to_add){
+    		alert('please enter value')
+    		return
+    	}
+
+		url = '/api/' + machine_code + '/update/'
+	    data = {
+		    'machine_code': machine_code,
+		    'item_code': selected_item_code,
+		    'amount_to_add': amount_to_add
+	    }
+	    fetch(url,{
+	    	method: 'post',
+		    headers: {
+		      "Content-type": "application/json; charset=UTF-8",
+		      "X-CSRFToken": csrftoken
+		    },
+		    body: JSON.stringify(data)
+		}).then(function(response){
+	    	if (response.status !== 201) {
+		        if(response.status == 400) {
+		        	response.json().then(function(data){
+		        		for (var key in data) {
+						    // check if the property/key is defined in the object itself, not in parent
+						    if (data.hasOwnProperty(key)) {           
+						        alert(data[key]);
+						    }
+						}
+		        	})
+		        }
+		        else{
+		        	alert('Some error Occured')
+		        }
+		        return;
+		     }
+
+		    response.json().then(function(data) {
+		        alert('Item has been updated')
+		        window.location.reload()
+		     });
+	    });
+    });
+
+    $("#add_item").submit(function(e){
+    	e.preventDefault()
+    	amount_to_add1 = $('input[name="amount_to_add1"]').val()
+    	select_item_code = $("select[name='item_add'").val()
+
+		url = '/api/' + machine_code + '/add/'
+	    data = {
+		    'machine_code': machine_code,
+		    'item_code': select_item_code,
+		    'amount_to_add': amount_to_add1
+	    }
+	    fetch(url,{
+	    	method: 'post',
+		    headers: {
+		      "Content-type": "application/json; charset=UTF-8",
+		      "X-CSRFToken": csrftoken
+		    },
+		    body: JSON.stringify(data)
+		}).then(function(response){
+	    	if (response.status !== 201) {
+		        if(response.status == 400) {
+		        	response.json().then(function(data){
+		        		for (var key in data) {
+						    // check if the property/key is defined in the object itself, not in parent
+						    if (data.hasOwnProperty(key)) {           
+						        alert(data[key]);
+						    }
+						}
+		        	})
+		        }
+		        else{
+		        	alert('Some error Occured')
+		        }
+		        return;
+		     }
+
+		    response.json().then(function(data) {
+		        alert('Item has been added')
+		        window.location.reload()
+		     });
+	    });
+
+    })
+});
+</script>
+<script>
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+	</script>
+{% endblock %}
