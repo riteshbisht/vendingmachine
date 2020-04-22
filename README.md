@@ -1,6 +1,6 @@
 # Vending Machine
 
-##### create virtual environment
+##### create virtual environment using python 3.6
 
 ###### Install Dependency
      pip install -r requirement.txt
