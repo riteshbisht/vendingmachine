@@ -19,6 +19,7 @@
 ###### Features
 - Can Add items in vending Machine
 - Can upadte value of items attached to veding machine
+    - For Refilling login using username root and password root
 - Can Buy on item at a time from Vending Machine.
 
 
